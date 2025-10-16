@@ -11,26 +11,37 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
+  
     - name: Docker login
       env:
         DOCKER_USER: ${{ secrets.DOCKERHUB_USER }}
         DOCKER_PASS: ${{ secrets.DOCKERHUB_PASS }}
       run: |
-        echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
 
     - name: Build all services
       run: |
         docker compose build
-
+        
     - name: Tag and push images
+      env:
+        DOCKER_USER: ${{ secrets.DOCKERHUB_USER }}
       run: |
-        docker tag vote:latest ${{ secrets.DOCKERHUB_USER }}/vote:latest
-        docker tag result:latest ${{ secrets.DOCKERHUB_USER }}/result:latest
-        docker tag worker:latest ${{ secrets.DOCKERHUB_USER }}/worker:latest
+        # Eliminar espacios ocultos o saltos de línea del nombre de usuario
+        USER=$(echo "$DOCKER_USER" | tr -d '[:space:]')
 
-        docker push ${{ secrets.DOCKERHUB_USER }}/vote:latest
-        docker push ${{ secrets.DOCKERHUB_USER }}/result:latest
-        docker push ${{ secrets.DOCKERHUB_USER }}/worker:latest
- 
+        echo "Tagging and pushing images for user: $USER"
+
+        # Etiquetar imágenes
+        docker tag vote:latest $USER/vote:latest
+        docker tag result:latest $USER/result:latest
+        docker tag worker:latest $USER/worker:latest
+
+        # Subir imágenes
+        docker push $USER/vote:latest
+        docker push $USER/result:latest
+        docker push $USER/worker:latest
