@@ -7,20 +7,30 @@ on:
     branches: [ "main" ]
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
-    - name: docker login
+
+    - name: Docker login
       env:
-        DOCKER_USER: ${{secrets.DOCKERHUB_USER}}
-        DOCKER_PASS: ${{secrets.DOCKERHUB_PASS}}
+        DOCKER_USER: ${{ secrets.DOCKERHUB_USER }}
+        DOCKER_PASS: ${{ secrets.DOCKERHUB_PASS }}
       run: |
-        docker login -u $DOCKER_USER -p $DOCKER_PASS
-    - name: Build the Docker image
-      run: docker compose up .. docker-compose.yml saloserna/dockersamples:latest
-    - name: Docker Push
-      run: docker push saloserna/dockersamples
+        echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+
+    - name: Build all services
+      run: |
+        docker compose build
+
+    - name: Tag and push images
+      run: |
+        docker tag vote:latest ${{ secrets.DOCKERHUB_USER }}/vote:latest
+        docker tag result:latest ${{ secrets.DOCKERHUB_USER }}/result:latest
+        docker tag worker:latest ${{ secrets.DOCKERHUB_USER }}/worker:latest
+
+        docker push ${{ secrets.DOCKERHUB_USER }}/vote:latest
+        docker push ${{ secrets.DOCKERHUB_USER }}/result:latest
+        docker push ${{ secrets.DOCKERHUB_USER }}/worker:latest
+ 
