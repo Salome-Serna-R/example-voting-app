@@ -26,9 +26,9 @@ jobs:
 
     - name: Tag and push images
       run: |
-        docker tag vote:latest ${{ secrets.DOCKERHUB_USER }}/vote:latest
-        docker tag result:latest ${{ secrets.DOCKERHUB_USER }}/result:latest
-        docker tag worker:latest ${{ secrets.DOCKERHUB_USER }}/worker:latest
+        docker tag vote:latest saloserna/vote:latest
+        docker tag result:latest saloserna/result:latest
+        docker tag worker:latest saloserna/worker:latest
 
         docker push ${{ secrets.DOCKERHUB_USER }}/vote:latest
         docker push ${{ secrets.DOCKERHUB_USER }}/result:latest
